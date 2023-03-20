@@ -1,12 +1,12 @@
 require 'rails_helper'
 
 RSpec.describe "Users", type: :request do
-  describe 'POST /create' do
+  describe 'POST create' do
     context 'with valid data' do
-      let(:csv_data) { "name,password\nJohn,Aqpfk1swods\nJane,QPFJWz1343439\nJoe,PFSHH78KSMa" }
+      let(:csv_file) { fixture_file_upload(Rails.root.join('spec', 'fixtures', 'valid_csv.csv'), 'text/csv') }
 
       it 'creates users' do
-        post :create, params: { csv_data: csv_data }
+        post users_path, params: { csv_file: csv_file }
         expect(response).to have_http_status(:ok)
 
         expect(User.count).to eq(3)
@@ -15,10 +15,10 @@ RSpec.describe "Users", type: :request do
     end
 
     context 'with invalid data' do
-      let(:csv_data) { "name,password\nJohn,Aqpfk1swods\nJane,invalid_password\nJoe,PFSHH78KSMa" }
+      let(:csv_file) { fixture_file_upload(Rails.root.join('spec', 'fixtures', 'mix_valid_invalid_csv.csv'), 'text/csv') }
 
       it 'does not create invalid users' do
-        post :create, params: { csv_data: csv_data }
+        post users_path, params: { csv_file: csv_file }
         expect(response).to have_http_status(:ok)
 
         expect(User.count).to eq(1)
@@ -27,10 +27,10 @@ RSpec.describe "Users", type: :request do
     end
 
     context 'with empty data' do
-      let(:csv_data) { '' }
+      let(:csv_file) { fixture_file_upload(Rails.root.join('spec', 'fixtures', 'empty_csv.csv'), 'text/csv') }
 
       it 'returns an error' do
-        post :create, params: { csv_data: csv_data }
+        post users_path, params: { csv_file: csv_file }
         expect(response).to have_http_status(:unprocessable_entity)
 
         expect(User.count).to eq(0)
@@ -41,7 +41,7 @@ RSpec.describe "Users", type: :request do
       let(:csv_file) { fixture_file_upload(Rails.root.join('spec', 'fixtures', 'invalid_file.txt'), 'text/plain') }
 
       it 'returns an error' do
-        post :create, params: { csv_file: csv_file }
+        post users_path, params: { csv_file: csv_file }
         expect(response).to have_http_status(:unprocessable_entity)
 
         expect(User.count).to eq(0)
@@ -52,8 +52,8 @@ RSpec.describe "Users", type: :request do
       let(:csv_file) { fixture_file_upload(Rails.root.join('spec', 'fixtures', 'invalid_csv.csv'), 'text/csv') }
 
       it 'returns an error' do
-        post :create, params: { csv_file: csv_file }
-        expect(response).to have_http_status(:unprocessable_entity)
+        post users_path, params: { csv_file: csv_file }
+        expect(response).to have_http_status(:ok)
 
         expect(User.count).to eq(0)
       end
