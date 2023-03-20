@@ -8,7 +8,13 @@ class UsersController < ApplicationController
 
     if params[:csv_file].nil?
       flash[:alert] = 'Please select a file to upload'
-      redirect_to root_path, status: :unprocessable_entity
+      render :index, status: :unprocessable_entity
+      return
+    end
+
+    unless params[:csv_file].content_type == 'text/csv'
+      flash[:alert] = 'Invalid file format'
+      render :index, status: :unprocessable_entity
       return
     end
 
@@ -26,10 +32,9 @@ class UsersController < ApplicationController
 
     if @results.empty?
       flash[:alert] = 'CSV file is empty'
-      redirect_to root_path, status: :unprocessable_entity
+      render :index, status: :unprocessable_entity
     else
-      flash[:notice] = 'CSV file uploaded successfully'
-      redirect_to root_path, status: :ok
+      render :index, status: :ok
     end
   end
 end
