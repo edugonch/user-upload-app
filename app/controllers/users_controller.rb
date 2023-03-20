@@ -19,16 +19,7 @@ class UsersController < ApplicationController
     end
 
     csv_data = params[:csv_file].read
-
-    CSV.parse(csv_data, headers: true) do |row|
-      user = User.new(name: row['name'], password: row['password'])
-      if user.valid?
-        user.save
-        @results << { name: user.name, password: user.password, status: 'success' }
-      else
-        @results << { name: row['name'], password: row['password'], status: 'error', errors: user.errors.full_messages }
-      end
-    end
+    @results = User.create_from_csv(csv_data)
 
     if @results.empty?
       flash[:alert] = 'CSV file is empty'
